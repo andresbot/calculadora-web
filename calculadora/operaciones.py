@@ -82,20 +82,27 @@ class Calculadora:
         Evalúa una expresión matemática simple.
         Solo permite operaciones básicas y números.
         """
+        if not expresion or expresion.strip() == '':
+            raise ValueError("La expresión no puede estar vacía")
+        
+        expresion = expresion.strip()
+        
         # Primero validar palabras prohibidas
         palabras_prohibidas = ['import', 'exec', 'eval', 'open', 'file', '__']
         for palabra in palabras_prohibidas:
             if palabra in expresion.lower():
                 raise ValueError("Expresión no permitida")
-
+    
         # Luego validar caracteres
         caracteres_permitidos = set('0123456789.+-*/() ')
         if not all(c in caracteres_permitidos for c in expresion):
             raise ValueError("La expresión contiene caracteres no permitidos")
-
+    
         try:
             # Usar eval con precaución (en un entorno controlado)
             resultado = eval(expresion, {'__builtins__': None}, {})
             return float(resultado)
+        except ZeroDivisionError:
+            raise ValueError("División por cero no permitida")
         except:
-            raise ValueError("Expresión matemática inválida")
+            raise ValueError("Expresión matemática inválida")    

@@ -127,10 +127,17 @@ function calcularExpresion() {
 }
 
 
+
         function evaluarExpresion() {
-            const expresion = expresionInput.value;
-            if (expresion === '') return;
+            const expresion = expresionInput.value.trim();
+            console.log("Evaluando expresión:", expresion);  // Para depuración en consola del navegador
             
+            if (expresion === '') {
+                resultadoDiv.textContent = 'Error: La expresión no puede estar vacía';
+                resultadoDiv.className = 'error';
+                return;
+            }
+
             enviarCalculo('expresion', '', '', expresion);
         }
 

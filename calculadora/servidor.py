@@ -25,11 +25,12 @@ class ManejadorCalculadora(http.server.SimpleHTTPRequestHandler):
     
     def do_POST(self):
         """Maneja solicitudes POST para operaciones de calculadora."""
+        print(f"POST recibido en: {self.path}")  # Para depuración
         if self.path == '/calcular':
             self.procesar_calculo()
         else:
             self.enviar_error(404, "Ruta no encontrada")
-    
+ 
     def servir_pagina_principal(self):
         """Sirve la página HTML principal."""
         try:
@@ -81,37 +82,42 @@ class ManejadorCalculadora(http.server.SimpleHTTPRequestHandler):
             longitud = int(self.headers['Content-Length'])
             datos = self.rfile.read(longitud).decode('utf-8')
             parametros = urllib.parse.parse_qs(datos)
-            
+    
             # Extraer parámetros
             operacion = parametros.get('operacion', [''])[0]
             numero1 = parametros.get('numero1', [''])[0]
             numero2 = parametros.get('numero2', [''])[0]
             expresion = parametros.get('expresion', [''])[0]
-            
+    
+            print(f"Parámetros extraídos - operacion: {operacion}, expresion: {expresion}")  # Para depuración
+    
             # Realizar la operación correspondiente
             resultado = self.ejecutar_operacion(operacion, numero1, numero2, expresion)
-            
+    
             # Enviar respuesta JSON
             respuesta = {
                 'estado': 'exito',
                 'resultado': resultado,
                 'operacion': operacion
             }
-            
+    
             self.enviar_respuesta_json(200, respuesta)
-            
+    
         except Exception as e:
             # Enviar error
             respuesta = {
                 'estado': 'error',
                 'mensaje': str(e)
             }
-            self.enviar_respuesta_json(400, respuesta)
+            self.enviar_respuesta_json(400, respuesta) 
     
-   
     def ejecutar_operacion(self, operacion, numero1, numero2, expresion):
         """Ejecuta la operación matemática solicitada."""
+        print(f"Operación recibida: {operacion}, expresión: {expresion}")  # Para depuración
+        
         if operacion == 'expresion':
+            if not expresion:
+                raise ValueError("La expresión no puede estar vacía")
             return Calculadora.evaluar_expresion(expresion)
         elif operacion == 'raiz':
             return Calculadora.raiz_cuadrada(numero1)
@@ -127,12 +133,12 @@ class ManejadorCalculadora(http.server.SimpleHTTPRequestHandler):
                 'multiplicacion': Calculadora.multiplicacion,
                 'division': Calculadora.division
             }
-
+    
             if operacion in operaciones:
                 return operaciones[operacion](numero1, numero2)
             else:
-                raise ValueError("Operación no válida")
-    
+                raise ValueError(f"Operación no válida: {operacion}")
+       
     def enviar_respuesta_json(self, codigo, datos):
         """Envía una respuesta JSON."""
         contenido = json.dumps(datos).encode('utf-8')
@@ -174,3 +180,5 @@ def iniciar_servidor(puerto=8000, host=''):
             httpd.serve_forever()
         except KeyboardInterrupt:
             print("\nServidor detenido")
+
+
